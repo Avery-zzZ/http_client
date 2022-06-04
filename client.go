@@ -13,23 +13,16 @@ var client = http.Client{}
 var Resp *http.Response
 var Cookies = []*http.Cookie{}
 
-func Do_request(method, addr string, header *map[string][]string, payload *url.Values, cookies []*http.Cookie) error {
+func Do_request(method, addr string, header map[string][]string, payload url.Values, cookies []*http.Cookie) error {
 
-	var err error
-	var req *http.Request
-
-	if method == "POST" && payload != nil {
-		body := ioutil.NopCloser(strings.NewReader((*payload).Encode()))
-		req, err = new_request_with_cookies(method, addr, &body, cookies)
-	} else{
-		req, err = new_request_with_cookies(method, addr, nil, cookies)
-	}
+	body := ioutil.NopCloser(strings.NewReader((payload).Encode()))
+	req, err := new_request_with_cookies(method, addr, body, cookies)
 
 	if err != nil {
 		return errors.New("http_client/client.go - Do_request:\n" + err.Error())
 	}
 
-	for key, values := range *header {
+	for key, values := range header {
 		for _, value := range values {
 			req.Header.Add(key, value)
 		}
@@ -43,9 +36,9 @@ func Do_request(method, addr string, header *map[string][]string, payload *url.V
 	return nil
 }
 
-func new_request_with_cookies(method, addr string, body *io.ReadCloser, cookies []*http.Cookie) (*http.Request, error) {
+func new_request_with_cookies(method, addr string, body io.ReadCloser, cookies []*http.Cookie) (*http.Request, error) {
 
-	req, err := http.NewRequest(method, addr, *body)
+	req, err := http.NewRequest(method, addr, body)
 	if err != nil {
 		return nil, errors.New("http_client/client.go - new_requst_with_cookies\nhttp.newRequest: " + err.Error())
 	}
