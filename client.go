@@ -15,8 +15,16 @@ var Cookies = []*http.Cookie{}
 
 func Do_request(method, addr string, header *map[string][]string, payload *url.Values, cookies []*http.Cookie) error {
 
-	body := ioutil.NopCloser(strings.NewReader((*payload).Encode()))
-	req, err := new_request_with_cookies(method, addr, &body, cookies)
+	var err error
+	var req *http.Request
+
+	if method == "POST" && payload != nil {
+		body := ioutil.NopCloser(strings.NewReader((*payload).Encode()))
+		req, err = new_request_with_cookies(method, addr, &body, cookies)
+	} else{
+		req, err = new_request_with_cookies(method, addr, nil, cookies)
+	}
+
 	if err != nil {
 		return errors.New("http_client/client.go - Do_request:\n" + err.Error())
 	}
@@ -49,7 +57,7 @@ func new_request_with_cookies(method, addr string, body *io.ReadCloser, cookies 
 	return req, nil
 }
 
-func Save_cookies(keys []string) error{
+func Save_cookies(keys []string) error {
 	if Resp == nil {
 		return errors.New("http_client/client.go - Save_cookies: empty response")
 	}
@@ -59,9 +67,9 @@ func Save_cookies(keys []string) error{
 		cookies_map[resp_cookie.Name] = resp_cookie
 	}
 
-	for _, key := range keys{
+	for _, key := range keys {
 		cookie, ok := cookies_map[key]
-		if !ok{
+		if !ok {
 			return errors.New("http_client/client.go - Save_cookies: no cookie named \"" + key + "\"")
 		}
 		Cookies = append(Cookies, cookie)
