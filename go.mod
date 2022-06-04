@@ -1,3 +1,3 @@
-module github.com/Avery-zzZ/net_tool
+module github.com/Avery-zzZ/http_client
 
 go 1.18
